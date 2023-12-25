@@ -1,17 +1,23 @@
+import CategoryFilter from "@/components/shared/CategoryFilter"
 import Collection from "@/components/shared/Collection"
+import Search from "@/components/shared/Search"
 import { Button } from "@/components/ui/button"
 import { getAllEvents } from "@/lib/actions/event.actions"
+import { SearchParamProps } from "@/types"
 import Image from "next/image"
 import Link from "next/link"
 
-export default async function Home() {
+export default async function Home({ searchParams }: SearchParamProps) {
+  const page = Number(searchParams?.page) || 1
+  const searchText = (searchParams?.query as string) || ""
+  const category = (searchParams?.category as string) || ""
+
   const events = await getAllEvents({
-    query: "",
-    category: "",
-    page: 1,
+    query: searchText,
+    category,
+    page,
     limit: 6,
   })
-
 
   return (
     <>
@@ -25,10 +31,11 @@ export default async function Home() {
               Book and learn helpful tips from 3,168+ mentors in world-class
               companies with our global community.
             </p>
-            <Button asChild size="lg" className="button w-full sm:w-fit">
+            <Button size="lg" asChild className="button w-full sm:w-fit">
               <Link href="#events">Explore Now</Link>
             </Button>
           </div>
+
           <Image
             src="/assets/images/hero.png"
             alt="hero"
@@ -38,6 +45,7 @@ export default async function Home() {
           />
         </div>
       </section>
+
       <section
         id="events"
         className="wrapper my-8 flex flex-col gap-8 md:gap-12"
@@ -45,17 +53,20 @@ export default async function Home() {
         <h2 className="h2-bold">
           Trust by <br /> Thousands of Events
         </h2>
+
         <div className="flex w-full flex-col gap-5 md:flex-row">
-          Search CategoryFilter
+          <Search />
+          <CategoryFilter />
         </div>
+
         <Collection
           data={events?.data}
-          emptyTitle="No events yet"
+          emptyTitle="No Events Found"
           emptyStateSubtext="Come back later"
           collectionType="All_Events"
           limit={6}
-          page={1}
-          totalPages={2}
+          page={page}
+          totalPages={events?.totalPages}
         />
       </section>
     </>
